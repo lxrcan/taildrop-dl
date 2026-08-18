@@ -168,7 +168,7 @@ def grab():
     requested = (data.get("target") or "").strip().lower()
     target = {t.lower(): t for t in TARGETS}.get(requested) if requested else TARGETS[0]
     if target is None:
-        print("rejected: unknown target", flush=True)
+        print(f"rejected: unknown target {requested!r}", flush=True)
         return jsonify(error="unknown target", allowed=TARGETS), 400
     if not url.startswith(("http://", "https://")):
         # iOS Shortcuts sometimes sends text/plain or the whole shared text — fish out a URL
