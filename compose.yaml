@@ -1,0 +1,20 @@
+# taildrop-dl — share-sheet URL → yt-dlp on your server → Taildrop back to your device.
+# Copy .env.example to .env and fill it in. Keep the bind address on your tailnet
+# (or localhost) — never expose this on a public interface.
+services:
+  taildrop-dl:
+    build: .
+    image: taildrop-dl
+    container_name: taildrop-dl
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - TZ=${TZ:-UTC}
+      # inside the container the app always listens on 8094; PORT in .env only
+      # picks the host-side port of the mapping above
+      - PORT=8094
+    ports:
+      - "${BIND_ADDR:-127.0.0.1}:${PORT:-8094}:8094"
+    volumes:
+      # host tailscaled socket: lets the container run `tailscale file cp` (Taildrop)
+      - /var/run/tailscale:/var/run/tailscale
