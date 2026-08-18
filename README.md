@@ -85,7 +85,14 @@ Shortcut Input variable and `mode` the literal text `video`/`audio` (put the inp
 both and everything arrives as video). An optional `target` field picks another device
 from your `TAILDROP_TARGETS` allowlist.
 
-Android + Tasker or any HTTP client works the same way.
+## Android
+
+No Shortcuts app needed — anything that can turn a share into an HTTP POST works.
+[MacroDroid](https://www.macrodroid.com/) is an easy option: a macro with the
+**Share** trigger and an **HTTP Request** action posting the same JSON
+(`Authorization: Bearer <API_TOKEN>`, `url` = shared text) to
+`http://<server-tailnet-ip>:8094/grab`. Tasker or HTTP Shortcuts work the same way.
+Delivered files appear in the Tailscale Android app.
 
 ## Privacy model
 
