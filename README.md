@@ -57,18 +57,33 @@ your tailnet. Never bind to a publicly reachable interface — the token is the 
 everything else means video — so a share-sheet menu can send its label as-is. If the
 body isn't valid JSON, the first `http(s)://` URL found in it is used.
 
+## The auth token
+
+The API is protected by a single shared secret. The tailnet bind (`BIND_ADDR`) is the
+real security boundary — only devices on your tailnet can reach the port at all — and
+the token is defense in depth on top of it: it stops other people *on your tailnet*
+(shared devices, guests via node sharing) from queuing downloads or reading job status.
+
+- Generate one: `openssl rand -hex 24`
+- Put the same value in two places: `API_TOKEN=` in the server's `.env`, and the
+  `Authorization: Bearer <token>` header in your Shortcut / client.
+- It never leaves your tailnet, but treat it like a password anyway: don't commit it,
+  and if a shared Shortcut leaks it, change it in `.env`, restart
+  (`docker compose up -d`), and update your Shortcut.
+
 ## iOS Shortcut
 
-1. Shortcuts → **+** → shortcut settings → enable **Show in Share Sheet**, input types
-   **URLs** + **Safari web pages**.
-2. **Choose from Menu**: `Video` / `Audio`.
-3. In each branch, **Get Contents of URL**:
-   - URL: `http://<server-tailnet-ip>:8094/grab`
-   - Method **POST**, Header `Authorization` = `Bearer <API_TOKEN>`
-   - Request Body (JSON): `url` = **Shortcut Input**, `mode` = `video` or `audio`
-     (literal text per branch).
-4. Share a link, pick a mode, and a minute later the file is in the Tailscale app —
-   Save to Photos / Files from there.
+Import the template — **[Taildrop-dl shortcut](https://www.icloud.com/shortcuts/aacd7decf653494eacc2462c3f56e944)**
+— then edit two things to make it yours:
+
+1. The request URL: `http://<your-server-tailnet-ip>:8094/grab`
+2. The `Authorization` header: `Bearer <your API_TOKEN>`
+
+Share a link from any app, pick Video or Audio, and a minute later the file is in the
+Tailscale app — Save to Photos / Files from there. In the JSON body, `url` must be the
+Shortcut Input variable and `mode` the literal text `video`/`audio` (put the input in
+both and everything arrives as video). An optional `target` field picks another device
+from your `TAILDROP_TARGETS` allowlist.
 
 Android + Tasker or any HTTP client works the same way.
 
