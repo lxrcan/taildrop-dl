@@ -161,24 +161,35 @@ def access_log(resp):
 def grab():
     if not authed():
         return jsonify(error="unauthorized"), 401
+    # Shortcuts et al. routinely scramble which field holds what, so interpret each value
+    # by what it looks like rather than by its key: URLs are the download link, allowlisted
+    # device names are the target, audio-ish keywords set the mode.
     data = request.get_json(silent=True) or {}
-    url = (data.get("url") or "").strip()
-    mode = (data.get("mode") or "video").strip().lower()
-    # match targets case-insensitively — apps display device names with varying case
-    requested = (data.get("target") or "").strip().lower()
-    target = {t.lower(): t for t in TARGETS}.get(requested) if requested else TARGETS[0]
-    if target is None:
-        print(f"rejected: unknown target {requested!r}", flush=True)
-        return jsonify(error="unknown target", allowed=TARGETS), 400
-    if not url.startswith(("http://", "https://")):
-        # iOS Shortcuts sometimes sends text/plain or the whole shared text — fish out a URL
+    vals = [str(v).strip() for v in data.values() if isinstance(v, (str, int, float))]
+
+    def is_url(v):
+        return v.startswith(("http://", "https://"))
+
+    url = next((v for v in vals if is_url(v)), "")
+    if not url:
+        # last resort: fish the first URL out of the raw body (text/plain shares etc.)
         m = re.search(r"https?://\S+", request.get_data(as_text=True))
         if not m:
             print("rejected: no url in body", flush=True)
             return jsonify(error="bad url"), 400
         url = m.group(0).rstrip('"\'}')
-    # coerce whatever a share-sheet menu sends ("Audio", "Music", "♪ song", …); default video
-    mode = "audio" if any(w in mode for w in ("aud", "music", "song", "mp3", "m4a")) else "video"
+
+    by_lower = {t.lower(): t for t in TARGETS}
+    named = str(data.get("target") or "").strip().lower()
+    if named and not is_url(named) and named not in by_lower:
+        print(f"rejected: unknown target {named!r}", flush=True)
+        return jsonify(error="unknown target", allowed=TARGETS), 400
+    target = by_lower.get(named) or next(
+        (by_lower[v.lower()] for v in vals if v.lower() in by_lower), TARGETS[0])
+
+    # any audio-ish keyword in any non-URL value means audio ("Audio", "Music", "♪ song", …)
+    blob = " ".join(v.lower() for v in vals if not is_url(v))
+    mode = "audio" if any(w in blob for w in ("aud", "music", "song", "mp3", "m4a")) else "video"
     job_id = uuid.uuid4().hex[:8]
     with jobs_lock:
         jobs[job_id] = {"state": "queued", "url": url, "mode": mode,
