@@ -164,13 +164,17 @@ def grab():
     data = request.get_json(silent=True) or {}
     url = (data.get("url") or "").strip()
     mode = (data.get("mode") or "video").strip().lower()
-    target = (data.get("target") or "").strip() or TARGETS[0]
-    if target not in TARGETS:
+    # match targets case-insensitively — apps display device names with varying case
+    requested = (data.get("target") or "").strip().lower()
+    target = {t.lower(): t for t in TARGETS}.get(requested) if requested else TARGETS[0]
+    if target is None:
+        print("rejected: unknown target", flush=True)
         return jsonify(error="unknown target", allowed=TARGETS), 400
     if not url.startswith(("http://", "https://")):
         # iOS Shortcuts sometimes sends text/plain or the whole shared text — fish out a URL
         m = re.search(r"https?://\S+", request.get_data(as_text=True))
         if not m:
+            print("rejected: no url in body", flush=True)
             return jsonify(error="bad url"), 400
         url = m.group(0).rstrip('"\'}')
     # coerce whatever a share-sheet menu sends ("Audio", "Music", "♪ song", …); default video
