@@ -6,10 +6,10 @@ to your device. Video arrives as mp4, audio as m4a. No cloud, no accounts, no tr
 
 <p align="center">
   <a href="https://github.com/lxrcan/taildrop-dl/raw/main/docs/demo.mp4">
-    <img src="https://github.com/lxrcan/taildrop-dl/raw/main/docs/demo-thumb.jpg" width="300" alt="Watch the demo">
+    <img src="https://github.com/lxrcan/taildrop-dl/raw/main/docs/demo.gif" width="300" alt="taildrop-dl demo">
   </a>
   <br>
-  <em>▶ <a href="https://github.com/lxrcan/taildrop-dl/raw/main/docs/demo.mp4">Watch the demo</a></em>
+  <em>▶ <a href="https://github.com/lxrcan/taildrop-dl/raw/main/docs/demo.mp4">Full video (with sound)</a></em>
 </p>
 
 ```
