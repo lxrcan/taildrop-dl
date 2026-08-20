@@ -4,9 +4,9 @@ Share a link from your phone's share sheet → a small server on your tailnet do
 with [yt-dlp](https://github.com/yt-dlp/yt-dlp) → the file is **Taildropped** straight back
 to your device. Video arrives as mp4, audio as m4a. No cloud, no accounts, no traces.
 
-<p align="center">
-  <video src="https://github.com/lxrcan/taildrop-dl/raw/main/docs/demo.mp4" controls muted loop width="360"></video>
-</p>
+
+[![Watch the video](https://github.com/lxrcan/taildrop-dl/raw/main/docs/demo.mp4)](https://github.com/lxrcan/taildrop-dl/raw/main/docs/demo.mp4)
+
 
 > _Demo not playing inline? [Watch it here.](https://github.com/lxrcan/taildrop-dl/raw/main/docs/demo.mp4)_
 
